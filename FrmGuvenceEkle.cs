@@ -39,24 +39,32 @@ namespace EczaneOtomasyonu
             }
             else
             {
-
-                using (var con = new OleDbConnection("provider=microsoft.ace.oledb.12.0;data source=EczaneDb.accdb"))
-                using (var komut = new OleDbCommand(
-                    "INSERT INTO Guvence (guvenceAdi, durum) VALUES (@p1,@p2)", con))
+                // If demo mode is enabled, save to in-memory demo store instead of the real database.
+                if (DemoConfig.IsDemo)
                 {
-                    con.Open();
-                    komut.Parameters.AddWithValue("p1", txtAd.Text);
-                    komut.Parameters.AddWithValue("p2", true);
-                    int sonuc = komut.ExecuteNonQuery();
-                    if (sonuc > 0)
+                    DemoData.AddGuvence(txtAd.Text, true);
+                    MessageBox.Show("Demo modu: Kayıt demo veritabanına eklendi.");
+                }
+                else
+                {
+                    using (var con = new OleDbConnection("provider=microsoft.ace.oledb.12.0;data source=EczaneDb.accdb"))
+                    using (var komut = new OleDbCommand(
+                        "INSERT INTO Guvence (guvenceAdi, durum) VALUES (@p1,@p2)", con))
                     {
-                        MessageBox.Show("Kayıt tamamlandı!");
+                        con.Open();
+                        komut.Parameters.AddWithValue("p1", txtAd.Text);
+                        komut.Parameters.AddWithValue("p2", true);
+                        int sonuc = komut.ExecuteNonQuery();
+                        if (sonuc > 0)
+                        {
+                            MessageBox.Show("Kayıt tamamlandı!");
+                        }
+                        else
+                        {
+                            MessageBox.Show("Kayıt hatası !", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        }
+                        con.Close();
                     }
-                    else
-                    {
-                        MessageBox.Show("Kayıt hatası !", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
-                    con.Close();
                 }
 
             }
